@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<meta name="theme-color" content="#f0c060"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="PONTO"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
+<title>PONTO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body,#root{height:100%;width:100%}
+body{background:#0d0d0d;color:#e8e0d0;font-family:'DM Mono',monospace;overscroll-behavior:none;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+#root{overflow-y:auto;-webkit-overflow-scrolling:touch}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script>
+var DAILY_LESSONS=9,EXTRA_RATE=7,CALENDAR_MCP_URL="https://calendarmcp.googleapis.com/mcp/v1";
+var DAYS_PT=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+var MONTHS_PT=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+function formatHours(h){var sign=h<0?"-":"",abs=Math.abs(h),hrs=Math.floor(abs),mins=Math.round((abs-hrs)*60);return sign+hrs+"h"+String(mins).padStart(2,"0")}
+function isSaturday(d){return new Date(d+"T12:00:00").getDay()===6}
+function calcEntry(e){var date=e.date,lessons=e.lessons||0,after=e.afterCutoffLessons||0,sat=e.saturdayLessons||0;if(isSaturday(date))return{workedH:sat,banco:0,extras:sat};var normalH=lessons-after,banco=normalH-DAILY_LESSONS;return{workedH:normalH+after,banco:banco,extras:after}}
+async function callCalendarMCP(msg){var r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,mcp_servers:[{type:"url",url:CALENDAR_MCP_URL,name:"google-calendar"}],messages:[{role:"user",content:msg}]})});var d=await r.json();if(!r.ok)throw new Error(d.error&&d.error.message||"Erro API");return d}
+function buildCalendarPrompt(entry){var date=entry.date,lessons=entry.lessons,after=entry.afterCutoffLessons,sat=entry.saturdayLessons,isSat=isSaturday(date),c=calcEntry(entry),banco=c.banco,extras=c.extras,workedH=c.workedH;var desc=["Registo de aulas — "+date];if(isSat){desc.push("Aulas sábado: "+sat);desc.push("Extras: "+formatHours(extras)+" → "+(extras*EXTRA_RATE).toFixed(2)+"€")}else{desc.push("Aulas antes 19:50: "+lessons);if(after>0)desc.push("Aulas depois 19:50: "+after);desc.push("Total: "+workedH+"h");if(banco>0)desc.push("Banco: +"+formatHours(banco));else if(banco<0)desc.push("Défice: "+formatHours(banco));if(extras>0)desc.push("Extras: "+formatHours(extras)+" → "+(extras*EXTRA_RATE).toFixed(2)+"€")}var title=isSat?"📚 Trabalho (Sáb) — "+sat+" aulas":"📚 Trabalho — "+(lessons+after)+" aulas";return'Create an all-day calendar event on '+date+' with:\n- summary: "'+title+'"\n- description: "'+desc.join("\\n")+'"\n- colorId: "'+(isSat?"11":banco>=0?"10":"4")+'"\nUse the create_event tool without asking for confirmation.'}
+function buildDeletePrompt(id){return'Delete the calendar event with id "'+id+'". Use the delete_event tool directly without asking for confirmation.'}
+var todayStr=new Date().toISOString().split("T")[0];
+var h=React.createElement,useState=React.useState,useEffect=React.useEffect;
+function App(){
+var _entries=useState(function(){try{return JSON.parse(localStorage.getItem("horas-v3")||"[]")}catch(e){return[]}}),entries=_entries[0],setEntries=_entries[1];
+var _form=useState({date:todayStr,lessons:"",afterCutoffLessons:"0",saturdayLessons:"0"}),form=_form[0],setForm=_form[1];
+var _tab=useState("registo"),tab=_tab[0],setTab=_tab[1];
+var _editId=useState(null),editId=_editId[0],setEditId=_editId[1];
+var _syncing=useState(false),syncing=_syncing[0],setSyncing=_syncing[1];
+var _msg=useState(null),msg=_msg[0],setMsg=_msg[1];
+var isSat=isSaturday(form.date);
+useEffect(function(){localStorage.setItem("horas-v3",JSON.stringify(entries))},[entries]);
+useEffect(function(){setForm(function(f){return Object.assign({},f,{lessons:"",afterCutoffLessons:"0",saturdayLessons:"0"})})},[form.date]);
+function showMsg(type,text){setMsg({type:type,text:text});setTimeout(function(){setMsg(null)},4000)}
+async function handleSave(){
+  var lessons=Number(form.lessons)||0,after=Number(form.afterCutoffLessons)||0,sat=Number(form.saturdayLessons)||0;
+  if(isSat&&sat===0)return;if(!isSat&&lessons===0&&after===0)return;
+  var entry={date:form.date,lessons:lessons,afterCutoffLessons:after,saturdayLessons:sat,id:editId||Date.now()};
+  if(editId!==null){var ex=entries.find(function(e){return e.id===editId});if(ex&&ex.calendarEventId){try{setSyncing(true);await callCalendarMCP(buildDeletePrompt(ex.calendarEventId))}catch(e){}}}
+  setSyncing(true);
+  try{var result=await callCalendarMCP(buildCalendarPrompt(entry));var tr=result.content&&result.content.find(function(b){return b.type==="mcp_tool_result"});var calId=null;if(tr&&tr.content&&tr.content[0]&&tr.content[0].text){try{var p=JSON.parse(tr.content[0].text);calId=p.id||null}catch(e){}}entry.calendarEventId=calId;showMsg("ok","✓ Sincronizado com Google Calendar")}catch(err){showMsg("err","⚠ Não sincronizado: "+err.message)}finally{setSyncing(false)}
+  if(editId!==null){setEntries(entries.map(function(e){return e.id===editId?entry:e}));setEditId(null)}else{setEntries(entries.concat([entry]))}
+  setForm({date:todayStr,lessons:"",afterCutoffLessons:"0",saturdayLessons:"0"})
+}
+async function handleDelete(id){
+  var entry=entries.find(function(e){return e.id===id});
+  if(entry&&entry.calendarEventId){setSyncing(true);try{await callCalendarMCP(buildDeletePrompt(entry.calendarEventId));showMsg("ok","✓ Removido do calendário")}catch(e){showMsg("err","⚠ Erro ao remover")}finally{setSyncing(false)}}
+  setEntries(entries.filter(function(e){return e.id!==id}))
+}
+function handleEdit(entry){setForm({date:entry.date,lessons:String(entry.lessons||0),afterCutoffLessons:String(entry.afterCutoffLessons||0),saturdayLessons:String(entry.saturdayLessons||0)});setEditId(entry.id);setTab("registo")}
+var totalBanco=entries.reduce(function(s,e){return s+calcEntry(e).banco},0);
+var totalExtras=entries.reduce(function(s,e){return s+calcEntry(e).extras},0);
+var totalPay=totalExtras*EXTRA_RATE;
+var sorted=entries.slice().sort(function(a,b){return b.date.localeCompare(a.date)});
+var grouped=sorted.reduce(function(acc,e){var m=e.date.substring(0,7);if(!acc[m])acc[m]=[];acc[m].push(e);return acc},{});
+var prevL=Number(form.lessons)||0,prevA=Number(form.afterCutoffLessons)||0,prevS=Number(form.saturdayLessons)||0;
+var prev=calcEntry({date:form.date,lessons:prevL,afterCutoffLessons:prevA,saturdayLessons:prevS});
+var hasPreview=isSat?prevS>0:(prevL>0||prevA>0);
+var canSave=isSat?Number(form.saturdayLessons)>0:(Number(form.lessons||0)>0||Number(form.afterCutoffLessons)>0);
+function stepperField(label,val,key){
+  return h("div",{style:{marginBottom:20}},
+    h("span",{style:{fontSize:10,color:"#555",letterSpacing:"1.5px",textTransform:"uppercase",display:"block",marginBottom:8}},label),
+    h("div",{style:{display:"flex",alignItems:"center",background:"#161616",border:"1px solid #2a2a2a",borderRadius:6,overflow:"hidden"}},
+      h("button",{style:{background:"#1e1e1e",border:"none",color:"#888",width:52,height:52,fontSize:22,cursor:"pointer"},onClick:function(){setForm(function(f){var v=Object.assign({},f);v[key]=String(Math.max(0,Number(v[key]||0)-1));return v})}},"−"),
+      h("div",{style:{flex:1,textAlign:"center",fontSize:22,color:"#e8e0d0",fontFamily:"'Syne',sans-serif",fontWeight:700}},form[key]||0),
+      h("button",{style:{background:"#1e1e1e",border:"none",color:"#888",width:52,height:52,fontSize:22,cursor:"pointer"},onClick:function(){setForm(function(f){var v=Object.assign({},f);v[key]=String(Number(v[key]||0)+1);return v})}},"+")))
+}
+var css=`
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+.tb{background:none;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:2px;text-transform:uppercase;padding:10px 16px;color:#555;border-bottom:2px solid transparent}
+.tb.act{color:#f0c060;border-bottom-color:#f0c060}
+.btn{background:#f0c060;color:#0d0d0d;border:none;padding:14px;font-family:'DM Mono',monospace;font-size:13px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:8px;font-weight:700;width:100%}
+.btn:disabled{background:#333;color:#666;cursor:not-allowed}
+.card{background:#111;border:1px solid #1e1e1e;border-radius:10px;padding:20px 22px}
+.row{background:#111;border:1px solid #1e1e1e;border-radius:8px;padding:14px 16px;margin-bottom:8px}
+.pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;margin:2px}
+.ib{background:none;border:none;cursor:pointer;padding:6px 8px;font-size:16px;opacity:.5;color:inherit}
+.dt{font-size:10px;color:#444;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.inp{background:#161616;border:1px solid #2a2a2a;color:#e8e0d0;padding:11px 14px;font-size:13px;border-radius:6px;width:100%;outline:none;font-family:'DM Mono',monospace}
+.inp:focus{border-color:#f0c060}
+.toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);padding:11px 20px;border-radius:8px;font-size:12px;z-index:999;white-space:nowrap}
+.bar{height:6px;background:#1a1a2a;border-radius:3px;overflow:hidden;margin-top:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid #555;border-top-color:#0d0d0d;border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:middle}
+`;
+return h("div",{style:{fontFamily:"'DM Mono',monospace",background:"#0d0d0d",minHeight:"100vh",color:"#e8e0d0"}},
+  h("style",null,css),
+  msg&&h("div",{className:"toast",style:{background:msg.type==="ok"?"#1a3a2a":"#2a1a1a",color:msg.type==="ok"?"#60d090":"#e07060",border:"1px solid "+(msg.type==="ok"?"#2a5a3a":"#4a2a2a")}},msg.text),
+  // Header
+  h("div",{style:{borderBottom:"1px solid #1a1a1a",padding:"16px 20px",display:"flex",justifyContent:"space-between",alignItems:"center",position:"sticky",top:0,background:"#0d0d0d",zIndex:10}},
+    h("div",null,
+      h("div",{style:{fontFamily:"'Syne',sans-serif",fontSize:24,fontWeight:800,color:"#f0c060"}},"PONTO"),
+      h("div",{style:{fontSize:10,color:"#444",letterSpacing:2,textTransform:"uppercase"}},"Registo de Aulas")),
+    h("div",{style:{display:"flex",gap:14,alignItems:"center"}},
+      h("div",{style:{textAlign:"right"}},
+        h("div",{style:{fontSize:9,color:"#444",letterSpacing:1,textTransform:"uppercase"}},"Banco"),
+        h("div",{style:{fontSize:17,color:totalBanco>=0?"#60d090":"#e07060",fontWeight:500}},(totalBanco>=0?"+":"")+formatHours(totalBanco))),
+      h("div",{style:{width:1,height:28,background:"#1e1e1e"}}),
+      h("div",{style:{textAlign:"right"}},
+        h("div",{style:{fontSize:9,color:"#444",letterSpacing:1,textTransform:"uppercase"}},"Extras"),
+        h("div",{style:{fontSize:17,color:"#e07060",fontWeight:500}},totalPay.toFixed(2)+"€")))),
+  // Tabs
+  h("div",{style:{display:"flex",borderBottom:"1px solid #1a1a1a",padding:"0 20px",position:"sticky",top:65,background:"#0d0d0d",zIndex:9}},
+    ["registo","historico","resumo"].map(function(t){return h("button",{key:t,className:"tb"+(tab===t?" act":""),onClick:function(){setTab(t)}},t==="registo"?"Registo":t==="historico"?"Histórico":"Resumo")})),
+  // Content
+  h("div",{style:{padding:"20px",maxWidth:560,margin:"0 auto",paddingBottom:40}},
+    // REGISTO
+    tab==="registo"&&h("div",null,
+      h("div",{style:{fontSize:11,color:"#555",letterSpacing:2,textTransform:"uppercase",marginBottom:16}},editId?"✏ Editar entrada":"Nova entrada"),
+      h("div",{style:{marginBottom:20}},
+        h("span",{style:{fontSize:10,color:"#555",letterSpacing:"1.5px",textTransform:"uppercase",display:"block",marginBottom:8}},"Data"),
+        h("input",{type:"date",className:"inp",value:form.date,onChange:function(e){setForm(Object.assign({},form,{date:e.target.value}))}}),
+        isSat&&h("div",{style:{marginTop:6,fontSize:11,color:"#c0a030"}},"⚠ Sábado — todas as aulas são extras pagas")),
+      isSat
+        ?stepperField("Aulas dadas hoje (sábado)","saturdayLessons","saturdayLessons")
+        :h("div",null,
+          stepperField("Aulas antes das 19:50",form.lessons||0,"lessons"),
+          h("div",{className:"bar"},h("div",{style:{height:"100%",borderRadius:3,transition:"width .3s",width:Math.min(100,(Number(form.lessons||0)/DAILY_LESSONS)*100)+"%",background:Number(form.lessons||0)>=DAILY_LESSONS?"#60d090":"#f0c060"}})),
+          h("div",{style:{marginTop:4,fontSize:11,color:"#444",marginBottom:16}},(Number(form.lessons||0))+"/"+DAILY_LESSONS+" obrigatórias"+(Number(form.lessons||0)>DAILY_LESSONS?" · +"+Number(form.lessons||0)-DAILY_LESSONS+"h banco":"")),
+          stepperField("Aulas depois das 19:50 (extras pagas)",form.afterCutoffLessons,"afterCutoffLessons"),
+          Number(form.afterCutoffLessons)>0&&h("div",{style:{fontSize:11,color:"#e07060",marginBottom:8}},Number(form.afterCutoffLessons)+"h → "+(Number(form.afterCutoffLessons)*EXTRA_RATE).toFixed(2)+"€")),
+      hasPreview&&h("div",{className:"card",style:{marginBottom:20}},
+        h("div",{className:"dt",style:{marginBottom:12}},"Pré-visualização"),
+        h("div",{style:{display:"flex",gap:20,flexWrap:"wrap"}},
+          h("div",null,h("div",{className:"dt"},"AULAS"),h("div",{style:{fontSize:26,fontFamily:"'Syne',sans-serif",fontWeight:700,color:"#e8e0d0"}},isSat?prevS:prevL+prevA)),
+          !isSat&&prev.banco!==0&&h("div",null,h("div",{className:"dt"},"BANCO"),h("div",{style:{fontSize:26,fontFamily:"'Syne',sans-serif",fontWeight:700,color:prev.banco>=0?"#60d090":"#e07060"}},(prev.banco>=0?"+":"")+formatHours(prev.banco))),
+          prev.extras>0&&h("div",null,h("div",{className:"dt"},"EXTRAS"),h("div",{style:{fontSize:26,fontFamily:"'Syne',sans-serif",fontWeight:700,color:"#e07060"}},(prev.extras*EXTRA_RATE).toFixed(2)+"€")))),
+      h("button",{className:"btn",onClick:handleSave,disabled:!canSave||syncing},syncing?h("span",null,h("span",{className:"spin"}),"A sincronizar..."):editId?"Guardar + Sincronizar":"Registar + Guardar no Calendário"),
+      editId&&h("button",{onClick:function(){setEditId(null);setForm({date:todayStr,lessons:"",afterCutoffLessons:"0",saturdayLessons:"0"})},style:{width:"100%",marginTop:8,background:"none",border:"1px solid #2a2a2a",color:"#666",padding:12,borderRadius:8,cursor:"pointer",fontFamily:"'DM Mono',monospace",fontSize:12}},"Cancelar"),
+      h("div",{style:{marginTop:24,padding:"14px 16px",background:"#0a0a0a",borderRadius:8,border:"1px solid #1a1a1a"}},
+        h("div",{style:{fontSize:10,color:"#333",letterSpacing:1.5,textTransform:"uppercase",marginBottom:8}},"Regras"),
+        h("div",{style:{fontSize:11,color:"#444",lineHeight:1.9}},"· 1 aula (50 min) = 1 hora de trabalho",h("br"),"· 9 aulas/dia = dia completo",h("br"),"· Acima de 9 (antes 19:50) → banco",h("br"),"· Depois das 19:50 → extras (7€/h)",h("br"),"· Sábado → tudo extras (7€/h)"))),
+    // HISTÓRICO
+    tab==="historico"&&h("div",null,
+      Object.keys(grouped).length===0&&h("div",{style:{textAlign:"center",color:"#333",marginTop:60,fontSize:13}},"Sem registos ainda."),
+      Object.entries(grouped).map(function(pair){var month=pair[0],mes=pair[1];return h("div",{key:month,style:{marginBottom:28}},
+        h("div",{style:{fontSize:10,color:"#444",letterSpacing:3,textTransform:"uppercase",marginBottom:12}},MONTHS_PT[Number(month.split("-")[1])-1]+" "+month.split("-")[0]),
+        mes.map(function(e){
+          var c=calcEntry(e),sat=isSaturday(e.date),total=sat?e.saturdayLessons:((e.lessons||0)+(e.afterCutoffLessons||0));
+          var d=new Date(e.date+"T12:00:00");
+          return h("div",{key:e.id,className:"row"},
+            h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}},
+              h("div",null,
+                h("div",{style:{fontSize:13,color:"#e8e0d0"}},DAYS_PT[d.getDay()]+", "+d.getDate()+" "+MONTHS_PT[d.getMonth()]+" "+(sat?"🟡":""),(e.calendarEventId?" 📅":"")),
+                h("div",{style:{fontSize:11,color:"#444",marginTop:3}},total+" aula(s)"+((!sat&&e.afterCutoffLessons>0)?" · "+e.afterCutoffLessons+" após 19:50":""))),
+              h("div",null,
+                h("button",{className:"ib",onClick:function(){handleEdit(e)}},"✏"),
+                h("button",{className:"ib",style:{color:"#e07060"},onClick:function(){handleDelete(e.id)}},"✕"))),
+            h("div",{style:{marginTop:10,display:"flex",flexWrap:"wrap"}},
+              h("span",{className:"pill",style:{background:"#1a1a2a",color:"#8080c0",border:"1px solid #2a2a4a"}},c.workedH+"h"),
+              !sat&&c.banco>0&&h("span",{className:"pill",style:{background:"#1a3a2a",color:"#60d090",border:"1px solid #2a5a3a"}},"+"+formatHours(c.banco)+" banco"),
+              !sat&&c.banco<0&&h("span",{className:"pill",style:{background:"#2a1010",color:"#e07060",border:"1px solid #4a2020"}},formatHours(c.banco)+" défice"),
+              c.extras>0&&h("span",{className:"pill",style:{background:"#3a1a1a",color:"#e07060",border:"1px solid #5a2a2a"}},"+"+formatHours(c.extras)+" · "+(c.extras*EXTRA_RATE).toFixed(2)+"€")))
+        })))})),
+    // RESUMO
+    tab==="resumo"&&h("div",{style:{display:"flex",flexDirection:"column",gap:14}},
+      h("div",{className:"card"},
+        h("div",{className:"dt"},"Banco de Horas"),
+        h("div",{style:{fontSize:42,fontFamily:"'Syne',sans-serif",fontWeight:800,color:totalBanco>=0?"#60d090":"#e07060",lineHeight:1}},(totalBanco>=0?"+":"")+formatHours(totalBanco)),
+        h("div",{style:{fontSize:11,color:"#444",marginTop:8}},totalBanco>=0?"Saldo positivo: "+formatHours(totalBanco):"Deves: "+formatHours(Math.abs(totalBanco)))),
+      h("div",{className:"card"},
+        h("div",{className:"dt"},"Horas Extras a Receber"),
+        h("div",{style:{fontSize:42,fontFamily:"'Syne',sans-serif",fontWeight:800,color:"#e07060",lineHeight:1}},totalPay.toFixed(2)+"€"),
+        h("div",{style:{fontSize:11,color:"#444",marginTop:8}},formatHours(totalExtras)+" × 7€/h")),
+      h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}},
+        h("div",{className:"card"},h("div",{className:"dt"},"Dias"),h("div",{style:{fontSize:30,fontFamily:"'Syne',sans-serif",fontWeight:800}},entries.length)),
+        h("div",{className:"card"},h("div",{className:"dt"},"Sincronizados"),h("div",{style:{fontSize:30,fontFamily:"'Syne',sans-serif",fontWeight:800,color:"#4090e0"}},entries.filter(function(e){return e.calendarEventId}).length))),
+      Object.keys(grouped).length>0&&h("div",{className:"card"},
+        h("div",{className:"dt",style:{marginBottom:14}},"Por Mês"),
+        Object.entries(grouped).map(function(pair){var month=pair[0],mes=pair[1];
+          var mB=mes.reduce(function(s,e){return s+calcEntry(e).banco},0);
+          var mE=mes.reduce(function(s,e){return s+calcEntry(e).extras},0);
+          var mA=mes.reduce(function(s,e){var sat=isSaturday(e.date);return s+(sat?(e.saturdayLessons||0):((e.lessons||0)+(e.afterCutoffLessons||0)))},0);
+          return h("div",{key:month,style:{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 0",borderBottom:"1px solid #1a1a1a"}},
+            h("div",null,h("div",{style:{fontSize:12,color:"#888"}},MONTHS_PT[Number(month.split("-")[1])-1]),h("div",{style:{fontSize:10,color:"#444"}},mA+" aulas")),
+            h("div",{style:{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:4}},
+              mB!==0&&h("span",{style:{fontSize:12,color:mB>=0?"#60d090":"#e07060"}},(mB>=0?"+":"")+formatHours(mB)+" banco"),
+              mE>0&&h("span",{style:{fontSize:12,color:"#e07060"}},(mE*EXTRA_RATE).toFixed(2)+"€ extras")))})),
+      entries.length>0&&h("button",{onClick:function(){if(window.confirm("Apagar todos os registos?"))setEntries([])},style:{background:"none",border:"1px solid #2a1a1a",color:"#663333",padding:12,borderRadius:8,cursor:"pointer",fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:"1.5px",textTransform:"uppercase",width:"100%"}},"Apagar todos os registos")))
+)}
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+if("serviceWorker"in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/ponto-aulas/sw.js").then(function(r){console.log("SW ok",r.scope)}).catch(function(e){console.log("SW err",e)})})}
+</script>
+</body>
+</html>
