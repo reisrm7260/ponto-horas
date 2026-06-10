@@ -2,199 +2,470 @@
 <html lang="pt-PT">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <meta name="theme-color" content="#f0c060"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="PONTO"/>
-<meta name="mobile-web-app-capable" content="yes"/>
-<link rel="manifest" href="manifest.json"/>
-<link rel="apple-touch-icon" href="icon-192.png"/>
+<link rel="manifest" id="mlink"/>
+<link rel="apple-touch-icon" id="aicon"/>
 <title>PONTO</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body,#root{height:100%;width:100%}
-body{background:#0d0d0d;color:#e8e0d0;font-family:'DM Mono',monospace;overscroll-behavior:none;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
-#root{overflow-y:auto;-webkit-overflow-scrolling:touch}
+body{background:#0d0d0d;color:#e8e0d0;font-family:'DM Mono',monospace;overscroll-behavior:none;padding-top:env(safe-area-inset-top)}
+header{border-bottom:1px solid #1a1a1a;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#0d0d0d;z-index:10}
+.logo{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#f0c060}
+.logo-sub{font-size:10px;color:#444;letter-spacing:2px;text-transform:uppercase}
+.hdr-stats{display:flex;gap:14px;align-items:center}
+.hdr-stat{text-align:right}
+.hdr-lbl{font-size:9px;color:#444;letter-spacing:1px;text-transform:uppercase}
+.hdr-val{font-size:17px;font-weight:500}
+.div1{width:1px;height:28px;background:#1e1e1e}
+.tabs{display:flex;border-bottom:1px solid #1a1a1a;padding:0 20px;background:#0d0d0d;position:sticky;top:65px;z-index:9}
+.tbtn{background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:2px;text-transform:uppercase;padding:10px 16px;color:#555}
+.tbtn.act{color:#f0c060;border-bottom-color:#f0c060}
+#content{padding:20px;max-width:560px;margin:0 auto;width:100%;padding-bottom:40px}
+.stitle{font-size:11px;color:#555;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px}
+.field{margin-bottom:20px}
+label{font-size:10px;color:#555;letter-spacing:1.5px;text-transform:uppercase;display:block;margin-bottom:8px}
+.inp{background:#161616;border:1px solid #2a2a2a;color:#e8e0d0;padding:11px 14px;font-size:13px;border-radius:6px;width:100%;outline:none;font-family:'DM Mono',monospace}
+.inp:focus{border-color:#f0c060}
+.sat-warn{font-size:11px;color:#c0a030;margin-top:6px}
+.hint{font-size:11px;color:#444;margin-top:6px}
+.stepper{display:flex;align-items:center;background:#161616;border:1px solid #2a2a2a;border-radius:6px;overflow:hidden}
+.sbtn{background:#1e1e1e;border:none;color:#888;width:52px;height:52px;font-size:22px;cursor:pointer;flex-shrink:0;font-family:'DM Mono',monospace}
+.sbtn:active{background:#2a2a2a;color:#f0c060}
+.sval{flex:1;text-align:center;font-size:22px;color:#e8e0d0;font-family:'Syne',sans-serif;font-weight:700}
+.bar{height:6px;background:#1a1a2a;border-radius:3px;overflow:hidden;margin-top:8px}
+.barfill{height:100%;border-radius:3px;transition:width .3s}
+.card{background:#111;border:1px solid #1e1e1e;border-radius:10px;padding:20px 22px}
+.slbl{font-size:10px;color:#444;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.sbig{font-size:26px;font-family:'Syne',sans-serif;font-weight:700;color:#e8e0d0}
+.btn{background:#f0c060;color:#0d0d0d;border:none;padding:14px;font-family:'DM Mono',monospace;font-size:13px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:8px;font-weight:700;width:100%;margin-bottom:8px}
+.btn:disabled{background:#333;color:#666;cursor:not-allowed}
+.btnc{background:none;border:1px solid #2a2a2a;color:#666;padding:12px;border-radius:8px;cursor:pointer;font-family:'DM Mono',monospace;font-size:12px;width:100%;margin-bottom:16px}
+.btnd{background:none;border:1px solid #2a1a1a;color:#663333;padding:12px;border-radius:8px;cursor:pointer;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;width:100%}
+.rules{margin-top:24px;padding:14px 16px;background:#0a0a0a;border-radius:8px;border:1px solid #1a1a1a;font-size:11px;color:#444;line-height:1.9}
+.rtitle{font-size:10px;color:#333;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
+.row{background:#111;border:1px solid #1e1e1e;border-radius:8px;padding:14px 16px;margin-bottom:8px}
+.rtit{font-size:13px;color:#e8e0d0}
+.rsub{font-size:11px;color:#444;margin-top:3px}
+.ibtn{background:none;border:none;cursor:pointer;padding:6px 8px;font-size:16px;opacity:.5;color:inherit}
+.ibtn:active{opacity:1}
+.mhdr{font-size:10px;color:#444;letter-spacing:3px;text-transform:uppercase;margin:20px 0 10px}
+.pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;margin:2px 2px 2px 0}
+.p-b{background:#1a3a2a;color:#60d090;border:1px solid #2a5a3a}
+.p-e{background:#3a1a1a;color:#e07060;border:1px solid #5a2a2a}
+.p-n{background:#1a1a2a;color:#8080c0;border:1px solid #2a2a4a}
+.p-d{background:#2a1010;color:#e07060;border:1px solid #4a2020}
+.bsat{background:#2a2000;color:#c0a030;border:1px solid #3a3000;font-size:10px;padding:1px 7px;border-radius:10px}
+.bcal{font-size:10px;background:#0a2040;color:#4090e0;border:1px solid #0a3060;padding:1px 7px;border-radius:10px}
+.toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);padding:11px 20px;border-radius:8px;font-size:12px;z-index:999;white-space:nowrap;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+.toast.ok{background:#1a3a2a;color:#60d090;border:1px solid #2a5a3a}
+.toast.err{background:#2a1a1a;color:#e07060;border:1px solid #4a2a2a}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid #555;border-top-color:#0d0d0d;border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:middle}
 </style>
 </head>
 <body>
-<div id="root"></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<header>
+  <div>
+    <div class="logo">PONTO</div>
+    <div class="logo-sub">Registo de Aulas</div>
+  </div>
+  <div class="hdr-stats">
+    <div class="hdr-stat">
+      <div class="hdr-lbl">Banco</div>
+      <div class="hdr-val" id="hdr-banco" style="color:#60d090">+0h00</div>
+    </div>
+    <div class="div1"></div>
+    <div class="hdr-stat">
+      <div class="hdr-lbl">Extras</div>
+      <div class="hdr-val" id="hdr-pay" style="color:#e07060">0.00&#8364;</div>
+    </div>
+  </div>
+</header>
+<nav class="tabs">
+  <button class="tbtn act" data-tab="registo" onclick="setTab('registo')">Registo</button>
+  <button class="tbtn" data-tab="historico" onclick="setTab('historico')">Hist&#243;rico</button>
+  <button class="tbtn" data-tab="resumo" onclick="setTab('resumo')">Resumo</button>
+</nav>
+<div id="content"></div>
+<div class="toast" id="toast"></div>
+
 <script>
-var DAILY_LESSONS=9,EXTRA_RATE=7,CALENDAR_MCP_URL="https://calendarmcp.googleapis.com/mcp/v1";
-var DAYS_PT=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
-var MONTHS_PT=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
-function formatHours(h){var sign=h<0?"-":"",abs=Math.abs(h),hrs=Math.floor(abs),mins=Math.round((abs-hrs)*60);return sign+hrs+"h"+String(mins).padStart(2,"0")}
-function isSaturday(d){return new Date(d+"T12:00:00").getDay()===6}
-function calcEntry(e){var date=e.date,lessons=e.lessons||0,after=e.afterCutoffLessons||0,sat=e.saturdayLessons||0;if(isSaturday(date))return{workedH:sat,banco:0,extras:sat};var normalH=lessons-after,banco=normalH-DAILY_LESSONS;return{workedH:normalH+after,banco:banco,extras:after}}
-async function callCalendarMCP(msg){var r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,mcp_servers:[{type:"url",url:CALENDAR_MCP_URL,name:"google-calendar"}],messages:[{role:"user",content:msg}]})});var d=await r.json();if(!r.ok)throw new Error(d.error&&d.error.message||"Erro API");return d}
-function buildCalendarPrompt(entry){var date=entry.date,lessons=entry.lessons,after=entry.afterCutoffLessons,sat=entry.saturdayLessons,isSat=isSaturday(date),c=calcEntry(entry),banco=c.banco,extras=c.extras,workedH=c.workedH;var desc=["Registo de aulas — "+date];if(isSat){desc.push("Aulas sábado: "+sat);desc.push("Extras: "+formatHours(extras)+" → "+(extras*EXTRA_RATE).toFixed(2)+"€")}else{desc.push("Aulas antes 19:50: "+lessons);if(after>0)desc.push("Aulas depois 19:50: "+after);desc.push("Total: "+workedH+"h");if(banco>0)desc.push("Banco: +"+formatHours(banco));else if(banco<0)desc.push("Défice: "+formatHours(banco));if(extras>0)desc.push("Extras: "+formatHours(extras)+" → "+(extras*EXTRA_RATE).toFixed(2)+"€")}var title=isSat?"📚 Trabalho (Sáb) — "+sat+" aulas":"📚 Trabalho — "+(lessons+after)+" aulas";return'Create an all-day calendar event on '+date+' with:\n- summary: "'+title+'"\n- description: "'+desc.join("\\n")+'"\n- colorId: "'+(isSat?"11":banco>=0?"10":"4")+'"\nUse the create_event tool without asking for confirmation.'}
-function buildDeletePrompt(id){return'Delete the calendar event with id "'+id+'". Use the delete_event tool directly without asking for confirmation.'}
-var todayStr=new Date().toISOString().split("T")[0];
-var h=React.createElement,useState=React.useState,useEffect=React.useEffect;
-function App(){
-var _entries=useState(function(){try{return JSON.parse(localStorage.getItem("horas-v3")||"[]")}catch(e){return[]}}),entries=_entries[0],setEntries=_entries[1];
-var _form=useState({date:todayStr,lessons:"",afterCutoffLessons:"0",saturdayLessons:"0"}),form=_form[0],setForm=_form[1];
-var _tab=useState("registo"),tab=_tab[0],setTab=_tab[1];
-var _editId=useState(null),editId=_editId[0],setEditId=_editId[1];
-var _syncing=useState(false),syncing=_syncing[0],setSyncing=_syncing[1];
-var _msg=useState(null),msg=_msg[0],setMsg=_msg[1];
-var isSat=isSaturday(form.date);
-useEffect(function(){localStorage.setItem("horas-v3",JSON.stringify(entries))},[entries]);
-useEffect(function(){setForm(function(f){return Object.assign({},f,{lessons:"",afterCutoffLessons:"0",saturdayLessons:"0"})})},[form.date]);
-function showMsg(type,text){setMsg({type:type,text:text});setTimeout(function(){setMsg(null)},4000)}
-async function handleSave(){
-  var lessons=Number(form.lessons)||0,after=Number(form.afterCutoffLessons)||0,sat=Number(form.saturdayLessons)||0;
-  if(isSat&&sat===0)return;if(!isSat&&lessons===0&&after===0)return;
-  var entry={date:form.date,lessons:lessons,afterCutoffLessons:after,saturdayLessons:sat,id:editId||Date.now()};
-  if(editId!==null){var ex=entries.find(function(e){return e.id===editId});if(ex&&ex.calendarEventId){try{setSyncing(true);await callCalendarMCP(buildDeletePrompt(ex.calendarEventId))}catch(e){}}}
-  setSyncing(true);
-  try{var result=await callCalendarMCP(buildCalendarPrompt(entry));var tr=result.content&&result.content.find(function(b){return b.type==="mcp_tool_result"});var calId=null;if(tr&&tr.content&&tr.content[0]&&tr.content[0].text){try{var p=JSON.parse(tr.content[0].text);calId=p.id||null}catch(e){}}entry.calendarEventId=calId;showMsg("ok","✓ Sincronizado com Google Calendar")}catch(err){showMsg("err","⚠ Não sincronizado: "+err.message)}finally{setSyncing(false)}
-  if(editId!==null){setEntries(entries.map(function(e){return e.id===editId?entry:e}));setEditId(null)}else{setEntries(entries.concat([entry]))}
-  setForm({date:todayStr,lessons:"",afterCutoffLessons:"0",saturdayLessons:"0"})
+// ── Icon & Manifest ───────────────────────────────────────
+var ICON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">'
+  + '<rect width="512" height="512" rx="96" fill="#0d0d0d"/>'
+  + '<rect x="40" y="40" width="432" height="432" rx="72" fill="#111"/>'
+  + '<circle cx="256" cy="215" r="112" fill="none" stroke="#f0c060" stroke-width="22"/>'
+  + '<line x1="256" y1="215" x2="256" y2="135" stroke="#f0c060" stroke-width="18" stroke-linecap="round"/>'
+  + '<line x1="256" y1="215" x2="320" y2="258" stroke="#e8e0d0" stroke-width="14" stroke-linecap="round"/>'
+  + '<circle cx="256" cy="215" r="12" fill="#f0c060"/>'
+  + '<rect x="80" y="360" width="352" height="90" rx="14" fill="#1a1a0a"/>'
+  + '<text x="256" y="428" font-family="monospace" font-weight="900" font-size="70" fill="#f0c060" text-anchor="middle">PONTO</text>'
+  + '</svg>';
+var ICON_URL = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(ICON_SVG)));
+document.getElementById('aicon').href = ICON_URL;
+var mBlob = new Blob([JSON.stringify({
+  name:'PONTO \u2014 Registo de Aulas', short_name:'PONTO',
+  start_url:'./', scope:'./', display:'standalone',
+  background_color:'#0d0d0d', theme_color:'#f0c060', lang:'pt-PT',
+  icons:[{src:ICON_URL,sizes:'512x512',type:'image/svg+xml',purpose:'any'}]
+})],{type:'application/manifest+json'});
+document.getElementById('mlink').href = URL.createObjectURL(mBlob);
+
+// ── Constants ─────────────────────────────────────────────
+var DAILY = 9, RATE = 7;
+var DAYS = ['Dom','Seg','Ter','Qua','Qui','Sex','S\u00e1b'];
+var MONTHS = ['Janeiro','Fevereiro','Mar\u00e7o','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+var TODAY = new Date().toISOString().split('T')[0];
+var CAL_MCP = 'https://calendarmcp.googleapis.com/mcp/v1';
+
+// ── State ─────────────────────────────────────────────────
+var entries = [];
+try { entries = JSON.parse(localStorage.getItem('ponto-v4') || '[]'); } catch(e) {}
+var tab = 'registo', editId = null, syncing = false;
+var fDate = TODAY, fLessons = 0, fAfter = 0, fSat = 0;
+var toastTimer = null;
+
+// ── Helpers ───────────────────────────────────────────────
+function persist() { localStorage.setItem('ponto-v4', JSON.stringify(entries)); }
+
+function isSat(d) { return new Date(d + 'T12:00:00').getDay() === 6; }
+
+function calc(e) {
+  if (isSat(e.date)) return {worked: e.sat||0, banco: 0, extras: e.sat||0};
+  var normal = (e.lessons||0) - (e.after||0);
+  return {worked: e.lessons||0, banco: normal - DAILY, extras: e.after||0};
 }
-async function handleDelete(id){
-  var entry=entries.find(function(e){return e.id===id});
-  if(entry&&entry.calendarEventId){setSyncing(true);try{await callCalendarMCP(buildDeletePrompt(entry.calendarEventId));showMsg("ok","✓ Removido do calendário")}catch(e){showMsg("err","⚠ Erro ao remover")}finally{setSyncing(false)}}
-  setEntries(entries.filter(function(e){return e.id!==id}))
+
+function fmtH(h) {
+  var s = h < 0 ? '-' : '', a = Math.abs(h);
+  return s + Math.floor(a) + 'h' + ('0' + Math.round((a % 1) * 60)).slice(-2);
 }
-function handleEdit(entry){setForm({date:entry.date,lessons:String(entry.lessons||0),afterCutoffLessons:String(entry.afterCutoffLessons||0),saturdayLessons:String(entry.saturdayLessons||0)});setEditId(entry.id);setTab("registo")}
-var totalBanco=entries.reduce(function(s,e){return s+calcEntry(e).banco},0);
-var totalExtras=entries.reduce(function(s,e){return s+calcEntry(e).extras},0);
-var totalPay=totalExtras*EXTRA_RATE;
-var sorted=entries.slice().sort(function(a,b){return b.date.localeCompare(a.date)});
-var grouped=sorted.reduce(function(acc,e){var m=e.date.substring(0,7);if(!acc[m])acc[m]=[];acc[m].push(e);return acc},{});
-var prevL=Number(form.lessons)||0,prevA=Number(form.afterCutoffLessons)||0,prevS=Number(form.saturdayLessons)||0;
-var prev=calcEntry({date:form.date,lessons:prevL,afterCutoffLessons:prevA,saturdayLessons:prevS});
-var hasPreview=isSat?prevS>0:(prevL>0||prevA>0);
-var canSave=isSat?Number(form.saturdayLessons)>0:(Number(form.lessons||0)>0||Number(form.afterCutoffLessons)>0);
-function stepperField(label,val,key){
-  return h("div",{style:{marginBottom:20}},
-    h("span",{style:{fontSize:10,color:"#555",letterSpacing:"1.5px",textTransform:"uppercase",display:"block",marginBottom:8}},label),
-    h("div",{style:{display:"flex",alignItems:"center",background:"#161616",border:"1px solid #2a2a2a",borderRadius:6,overflow:"hidden"}},
-      h("button",{style:{background:"#1e1e1e",border:"none",color:"#888",width:52,height:52,fontSize:22,cursor:"pointer"},onClick:function(){setForm(function(f){var v=Object.assign({},f);v[key]=String(Math.max(0,Number(v[key]||0)-1));return v})}},"−"),
-      h("div",{style:{flex:1,textAlign:"center",fontSize:22,color:"#e8e0d0",fontFamily:"'Syne',sans-serif",fontWeight:700}},form[key]||0),
-      h("button",{style:{background:"#1e1e1e",border:"none",color:"#888",width:52,height:52,fontSize:22,cursor:"pointer"},onClick:function(){setForm(function(f){var v=Object.assign({},f);v[key]=String(Number(v[key]||0)+1);return v})}},"+")))
+
+function dayLabel(d) {
+  var dt = new Date(d + 'T12:00:00');
+  return DAYS[dt.getDay()] + ', ' + dt.getDate() + ' ' + MONTHS[dt.getMonth()];
 }
-var css=`
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-.tb{background:none;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:2px;text-transform:uppercase;padding:10px 16px;color:#555;border-bottom:2px solid transparent}
-.tb.act{color:#f0c060;border-bottom-color:#f0c060}
-.btn{background:#f0c060;color:#0d0d0d;border:none;padding:14px;font-family:'DM Mono',monospace;font-size:13px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:8px;font-weight:700;width:100%}
-.btn:disabled{background:#333;color:#666;cursor:not-allowed}
-.card{background:#111;border:1px solid #1e1e1e;border-radius:10px;padding:20px 22px}
-.row{background:#111;border:1px solid #1e1e1e;border-radius:8px;padding:14px 16px;margin-bottom:8px}
-.pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;margin:2px}
-.ib{background:none;border:none;cursor:pointer;padding:6px 8px;font-size:16px;opacity:.5;color:inherit}
-.dt{font-size:10px;color:#444;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
-.inp{background:#161616;border:1px solid #2a2a2a;color:#e8e0d0;padding:11px 14px;font-size:13px;border-radius:6px;width:100%;outline:none;font-family:'DM Mono',monospace}
-.inp:focus{border-color:#f0c060}
-.toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);padding:11px 20px;border-radius:8px;font-size:12px;z-index:999;white-space:nowrap}
-.bar{height:6px;background:#1a1a2a;border-radius:3px;overflow:hidden;margin-top:8px}
-@keyframes spin{to{transform:rotate(360deg)}}
-.spin{display:inline-block;width:12px;height:12px;border:2px solid #555;border-top-color:#0d0d0d;border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:middle}
-`;
-return h("div",{style:{fontFamily:"'DM Mono',monospace",background:"#0d0d0d",minHeight:"100vh",color:"#e8e0d0"}},
-  h("style",null,css),
-  msg&&h("div",{className:"toast",style:{background:msg.type==="ok"?"#1a3a2a":"#2a1a1a",color:msg.type==="ok"?"#60d090":"#e07060",border:"1px solid "+(msg.type==="ok"?"#2a5a3a":"#4a2a2a")}},msg.text),
-  // Header
-  h("div",{style:{borderBottom:"1px solid #1a1a1a",padding:"16px 20px",display:"flex",justifyContent:"space-between",alignItems:"center",position:"sticky",top:0,background:"#0d0d0d",zIndex:10}},
-    h("div",null,
-      h("div",{style:{fontFamily:"'Syne',sans-serif",fontSize:24,fontWeight:800,color:"#f0c060"}},"PONTO"),
-      h("div",{style:{fontSize:10,color:"#444",letterSpacing:2,textTransform:"uppercase"}},"Registo de Aulas")),
-    h("div",{style:{display:"flex",gap:14,alignItems:"center"}},
-      h("div",{style:{textAlign:"right"}},
-        h("div",{style:{fontSize:9,color:"#444",letterSpacing:1,textTransform:"uppercase"}},"Banco"),
-        h("div",{style:{fontSize:17,color:totalBanco>=0?"#60d090":"#e07060",fontWeight:500}},(totalBanco>=0?"+":"")+formatHours(totalBanco))),
-      h("div",{style:{width:1,height:28,background:"#1e1e1e"}}),
-      h("div",{style:{textAlign:"right"}},
-        h("div",{style:{fontSize:9,color:"#444",letterSpacing:1,textTransform:"uppercase"}},"Extras"),
-        h("div",{style:{fontSize:17,color:"#e07060",fontWeight:500}},totalPay.toFixed(2)+"€")))),
-  // Tabs
-  h("div",{style:{display:"flex",borderBottom:"1px solid #1a1a1a",padding:"0 20px",position:"sticky",top:65,background:"#0d0d0d",zIndex:9}},
-    ["registo","historico","resumo"].map(function(t){return h("button",{key:t,className:"tb"+(tab===t?" act":""),onClick:function(){setTab(t)}},t==="registo"?"Registo":t==="historico"?"Histórico":"Resumo")})),
-  // Content
-  h("div",{style:{padding:"20px",maxWidth:560,margin:"0 auto",paddingBottom:40}},
-    // REGISTO
-    tab==="registo"&&h("div",null,
-      h("div",{style:{fontSize:11,color:"#555",letterSpacing:2,textTransform:"uppercase",marginBottom:16}},editId?"✏ Editar entrada":"Nova entrada"),
-      h("div",{style:{marginBottom:20}},
-        h("span",{style:{fontSize:10,color:"#555",letterSpacing:"1.5px",textTransform:"uppercase",display:"block",marginBottom:8}},"Data"),
-        h("input",{type:"date",className:"inp",value:form.date,onChange:function(e){setForm(Object.assign({},form,{date:e.target.value}))}}),
-        isSat&&h("div",{style:{marginTop:6,fontSize:11,color:"#c0a030"}},"⚠ Sábado — todas as aulas são extras pagas")),
-      isSat
-        ?stepperField("Aulas dadas hoje (sábado)","saturdayLessons","saturdayLessons")
-        :h("div",null,
-          stepperField("Aulas antes das 19:50",form.lessons||0,"lessons"),
-          h("div",{className:"bar"},h("div",{style:{height:"100%",borderRadius:3,transition:"width .3s",width:Math.min(100,(Number(form.lessons||0)/DAILY_LESSONS)*100)+"%",background:Number(form.lessons||0)>=DAILY_LESSONS?"#60d090":"#f0c060"}})),
-          h("div",{style:{marginTop:4,fontSize:11,color:"#444",marginBottom:16}},(Number(form.lessons||0))+"/"+DAILY_LESSONS+" obrigatórias"+(Number(form.lessons||0)>DAILY_LESSONS?" · +"+Number(form.lessons||0)-DAILY_LESSONS+"h banco":"")),
-          stepperField("Aulas depois das 19:50 (extras pagas)",form.afterCutoffLessons,"afterCutoffLessons"),
-          Number(form.afterCutoffLessons)>0&&h("div",{style:{fontSize:11,color:"#e07060",marginBottom:8}},Number(form.afterCutoffLessons)+"h → "+(Number(form.afterCutoffLessons)*EXTRA_RATE).toFixed(2)+"€")),
-      hasPreview&&h("div",{className:"card",style:{marginBottom:20}},
-        h("div",{className:"dt",style:{marginBottom:12}},"Pré-visualização"),
-        h("div",{style:{display:"flex",gap:20,flexWrap:"wrap"}},
-          h("div",null,h("div",{className:"dt"},"AULAS"),h("div",{style:{fontSize:26,fontFamily:"'Syne',sans-serif",fontWeight:700,color:"#e8e0d0"}},isSat?prevS:prevL+prevA)),
-          !isSat&&prev.banco!==0&&h("div",null,h("div",{className:"dt"},"BANCO"),h("div",{style:{fontSize:26,fontFamily:"'Syne',sans-serif",fontWeight:700,color:prev.banco>=0?"#60d090":"#e07060"}},(prev.banco>=0?"+":"")+formatHours(prev.banco))),
-          prev.extras>0&&h("div",null,h("div",{className:"dt"},"EXTRAS"),h("div",{style:{fontSize:26,fontFamily:"'Syne',sans-serif",fontWeight:700,color:"#e07060"}},(prev.extras*EXTRA_RATE).toFixed(2)+"€")))),
-      h("button",{className:"btn",onClick:handleSave,disabled:!canSave||syncing},syncing?h("span",null,h("span",{className:"spin"}),"A sincronizar..."):editId?"Guardar + Sincronizar":"Registar + Guardar no Calendário"),
-      editId&&h("button",{onClick:function(){setEditId(null);setForm({date:todayStr,lessons:"",afterCutoffLessons:"0",saturdayLessons:"0"})},style:{width:"100%",marginTop:8,background:"none",border:"1px solid #2a2a2a",color:"#666",padding:12,borderRadius:8,cursor:"pointer",fontFamily:"'DM Mono',monospace",fontSize:12}},"Cancelar"),
-      h("div",{style:{marginTop:24,padding:"14px 16px",background:"#0a0a0a",borderRadius:8,border:"1px solid #1a1a1a"}},
-        h("div",{style:{fontSize:10,color:"#333",letterSpacing:1.5,textTransform:"uppercase",marginBottom:8}},"Regras"),
-        h("div",{style:{fontSize:11,color:"#444",lineHeight:1.9}},"· 1 aula (50 min) = 1 hora de trabalho",h("br"),"· 9 aulas/dia = dia completo",h("br"),"· Acima de 9 (antes 19:50) → banco",h("br"),"· Depois das 19:50 → extras (7€/h)",h("br"),"· Sábado → tudo extras (7€/h)"))),
-    // HISTÓRICO
-    tab==="historico"&&h("div",null,
-      Object.keys(grouped).length===0&&h("div",{style:{textAlign:"center",color:"#333",marginTop:60,fontSize:13}},"Sem registos ainda."),
-      Object.entries(grouped).map(function(pair){var month=pair[0],mes=pair[1];return h("div",{key:month,style:{marginBottom:28}},
-        h("div",{style:{fontSize:10,color:"#444",letterSpacing:3,textTransform:"uppercase",marginBottom:12}},MONTHS_PT[Number(month.split("-")[1])-1]+" "+month.split("-")[0]),
-        mes.map(function(e){
-          var c=calcEntry(e),sat=isSaturday(e.date),total=sat?e.saturdayLessons:((e.lessons||0)+(e.afterCutoffLessons||0));
-          var d=new Date(e.date+"T12:00:00");
-          return h("div",{key:e.id,className:"row"},
-            h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}},
-              h("div",null,
-                h("div",{style:{fontSize:13,color:"#e8e0d0"}},DAYS_PT[d.getDay()]+", "+d.getDate()+" "+MONTHS_PT[d.getMonth()]+" "+(sat?"🟡":""),(e.calendarEventId?" 📅":"")),
-                h("div",{style:{fontSize:11,color:"#444",marginTop:3}},total+" aula(s)"+((!sat&&e.afterCutoffLessons>0)?" · "+e.afterCutoffLessons+" após 19:50":""))),
-              h("div",null,
-                h("button",{className:"ib",onClick:function(){handleEdit(e)}},"✏"),
-                h("button",{className:"ib",style:{color:"#e07060"},onClick:function(){handleDelete(e.id)}},"✕"))),
-            h("div",{style:{marginTop:10,display:"flex",flexWrap:"wrap"}},
-              h("span",{className:"pill",style:{background:"#1a1a2a",color:"#8080c0",border:"1px solid #2a2a4a"}},c.workedH+"h"),
-              !sat&&c.banco>0&&h("span",{className:"pill",style:{background:"#1a3a2a",color:"#60d090",border:"1px solid #2a5a3a"}},"+"+formatHours(c.banco)+" banco"),
-              !sat&&c.banco<0&&h("span",{className:"pill",style:{background:"#2a1010",color:"#e07060",border:"1px solid #4a2020"}},formatHours(c.banco)+" défice"),
-              c.extras>0&&h("span",{className:"pill",style:{background:"#3a1a1a",color:"#e07060",border:"1px solid #5a2a2a"}},"+"+formatHours(c.extras)+" · "+(c.extras*EXTRA_RATE).toFixed(2)+"€")))
-        })))})),
-    // RESUMO
-    tab==="resumo"&&h("div",{style:{display:"flex",flexDirection:"column",gap:14}},
-      h("div",{className:"card"},
-        h("div",{className:"dt"},"Banco de Horas"),
-        h("div",{style:{fontSize:42,fontFamily:"'Syne',sans-serif",fontWeight:800,color:totalBanco>=0?"#60d090":"#e07060",lineHeight:1}},(totalBanco>=0?"+":"")+formatHours(totalBanco)),
-        h("div",{style:{fontSize:11,color:"#444",marginTop:8}},totalBanco>=0?"Saldo positivo: "+formatHours(totalBanco):"Deves: "+formatHours(Math.abs(totalBanco)))),
-      h("div",{className:"card"},
-        h("div",{className:"dt"},"Horas Extras a Receber"),
-        h("div",{style:{fontSize:42,fontFamily:"'Syne',sans-serif",fontWeight:800,color:"#e07060",lineHeight:1}},totalPay.toFixed(2)+"€"),
-        h("div",{style:{fontSize:11,color:"#444",marginTop:8}},formatHours(totalExtras)+" × 7€/h")),
-      h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}},
-        h("div",{className:"card"},h("div",{className:"dt"},"Dias"),h("div",{style:{fontSize:30,fontFamily:"'Syne',sans-serif",fontWeight:800}},entries.length)),
-        h("div",{className:"card"},h("div",{className:"dt"},"Sincronizados"),h("div",{style:{fontSize:30,fontFamily:"'Syne',sans-serif",fontWeight:800,color:"#4090e0"}},entries.filter(function(e){return e.calendarEventId}).length))),
-      Object.keys(grouped).length>0&&h("div",{className:"card"},
-        h("div",{className:"dt",style:{marginBottom:14}},"Por Mês"),
-        Object.entries(grouped).map(function(pair){var month=pair[0],mes=pair[1];
-          var mB=mes.reduce(function(s,e){return s+calcEntry(e).banco},0);
-          var mE=mes.reduce(function(s,e){return s+calcEntry(e).extras},0);
-          var mA=mes.reduce(function(s,e){var sat=isSaturday(e.date);return s+(sat?(e.saturdayLessons||0):((e.lessons||0)+(e.afterCutoffLessons||0)))},0);
-          return h("div",{key:month,style:{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 0",borderBottom:"1px solid #1a1a1a"}},
-            h("div",null,h("div",{style:{fontSize:12,color:"#888"}},MONTHS_PT[Number(month.split("-")[1])-1]),h("div",{style:{fontSize:10,color:"#444"}},mA+" aulas")),
-            h("div",{style:{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:4}},
-              mB!==0&&h("span",{style:{fontSize:12,color:mB>=0?"#60d090":"#e07060"}},(mB>=0?"+":"")+formatHours(mB)+" banco"),
-              mE>0&&h("span",{style:{fontSize:12,color:"#e07060"}},(mE*EXTRA_RATE).toFixed(2)+"€ extras")))})),
-      entries.length>0&&h("button",{onClick:function(){if(window.confirm("Apagar todos os registos?"))setEntries([])},style:{background:"none",border:"1px solid #2a1a1a",color:"#663333",padding:12,borderRadius:8,cursor:"pointer",fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:"1.5px",textTransform:"uppercase",width:"100%"}},"Apagar todos os registos")))
-)}
-ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
-if("serviceWorker"in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/ponto-aulas/sw.js").then(function(r){console.log("SW ok",r.scope)}).catch(function(e){console.log("SW err",e)})})}
+
+function totals() {
+  return entries.reduce(function(a, e) {
+    var c = calc(e); a.banco += c.banco; a.extras += c.extras; return a;
+  }, {banco: 0, extras: 0});
+}
+
+function showToast(type, text) {
+  if (toastTimer) clearTimeout(toastTimer);
+  var el = document.getElementById('toast');
+  el.textContent = text;
+  el.className = 'toast show ' + type;
+  toastTimer = setTimeout(function() { el.className = 'toast'; }, 3500);
+}
+
+// ── Calendar ──────────────────────────────────────────────
+async function calMCP(msg) {
+  var r = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514', max_tokens: 1000,
+      mcp_servers: [{type:'url', url:CAL_MCP, name:'gcal'}],
+      messages: [{role:'user', content:msg}]
+    })
+  });
+  var d = await r.json();
+  if (!r.ok) throw new Error((d.error && d.error.message) || 'Erro API');
+  return d;
+}
+
+function calPrompt(entry) {
+  var sat = isSat(entry.date), c = calc(entry);
+  var lines = ['Registo ' + entry.date];
+  if (sat) {
+    lines.push('Aulas sabado: ' + (entry.sat||0));
+    lines.push('Extras: ' + fmtH(c.extras) + ' > ' + (c.extras*RATE).toFixed(2) + 'EUR');
+  } else {
+    lines.push('Aulas antes 19:50: ' + (entry.lessons||0));
+    if ((entry.after||0) > 0) lines.push('Apos 19:50: ' + entry.after);
+    if (c.banco > 0) lines.push('Banco: +' + fmtH(c.banco));
+    else if (c.banco < 0) lines.push('Deficit: ' + fmtH(c.banco));
+    if (c.extras > 0) lines.push('Extras: ' + fmtH(c.extras) + ' > ' + (c.extras*RATE).toFixed(2) + 'EUR');
+  }
+  var title = sat
+    ? '📚 Sabado - ' + (entry.sat||0) + ' aulas'
+    : '📚 Trabalho - ' + ((entry.lessons||0)+(entry.after||0)) + ' aulas';
+  var color = sat ? '11' : (c.banco >= 0 ? '10' : '4');
+  return 'Create an all-day calendar event on ' + entry.date
+    + ' with summary "' + title + '"'
+    + ', description "' + lines.join('\\n') + '"'
+    + ', colorId "' + color + '".'
+    + ' Use create_event tool now without asking for confirmation.';
+}
+
+// ── Actions ───────────────────────────────────────────────
+function setTab(t) { tab = t; render(); }
+
+function setDate(v) { fDate = v; fLessons = 0; fAfter = 0; fSat = 0; render(); }
+
+function step(f, d) {
+  if (f === 'lessons') fLessons = Math.max(0, fLessons + d);
+  if (f === 'after')   fAfter   = Math.max(0, fAfter   + d);
+  if (f === 'sat')     fSat     = Math.max(0, fSat     + d);
+  render();
+}
+
+function startEdit(id) {
+  var e = null;
+  for (var i = 0; i < entries.length; i++) { if (entries[i].id === id) { e = entries[i]; break; } }
+  if (!e) return;
+  editId = id; fDate = e.date; fLessons = e.lessons||0; fAfter = e.after||0; fSat = e.sat||0; tab = 'registo';
+  render();
+}
+
+function cancelEdit() { editId = null; fDate = TODAY; fLessons = 0; fAfter = 0; fSat = 0; render(); }
+
+async function deleteEntry(id) {
+  var e = null;
+  for (var i = 0; i < entries.length; i++) { if (entries[i].id === id) { e = entries[i]; break; } }
+  if (e && e.calId) {
+    try {
+      await calMCP('Delete calendar event id "' + e.calId + '". Use delete_event tool now without confirmation.');
+      showToast('ok', '\u2713 Removido do calend\u00e1rio');
+    } catch(err) { showToast('err', '\u26a0 Erro ao remover'); }
+  }
+  entries = entries.filter(function(x) { return x.id !== id; });
+  persist(); render();
+}
+
+async function submit() {
+  var sat = isSat(fDate);
+  if (sat && fSat === 0) return;
+  if (!sat && fLessons === 0 && fAfter === 0) return;
+  var entry = {id: editId || Date.now(), date: fDate, lessons: sat?0:fLessons, after: sat?0:fAfter, sat: sat?fSat:0};
+  if (editId) {
+    var old = null;
+    for (var i = 0; i < entries.length; i++) { if (entries[i].id === editId) { old = entries[i]; break; } }
+    if (old && old.calId) {
+      try { await calMCP('Delete calendar event id "' + old.calId + '". Use delete_event now.'); } catch(e) {}
+    }
+  }
+  syncing = true; render();
+  try {
+    var result = await calMCP(calPrompt(entry));
+    var tr = null;
+    if (result.content) {
+      for (var i = 0; i < result.content.length; i++) {
+        if (result.content[i].type === 'mcp_tool_result') { tr = result.content[i]; break; }
+      }
+    }
+    if (tr && tr.content && tr.content[0] && tr.content[0].text) {
+      try { entry.calId = JSON.parse(tr.content[0].text).id; } catch(e) {}
+    }
+    showToast('ok', '\u2713 Guardado no Google Calendar');
+  } catch(err) { showToast('err', '\u26a0 Sem sincroniza\u00e7\u00e3o: ' + err.message); }
+  syncing = false;
+  if (editId) {
+    entries = entries.map(function(x) { return x.id === editId ? entry : x; });
+    editId = null;
+  } else { entries.push(entry); }
+  fDate = TODAY; fLessons = 0; fAfter = 0; fSat = 0;
+  persist(); render();
+}
+
+function clearAll() { entries = []; persist(); render(); }
+
+// ── Render helpers ────────────────────────────────────────
+function mkStepper(field, val) {
+  return '<div class="stepper">'
+    + '<button class="sbtn" onclick="step(\'' + field + '\',-1)">&#8722;</button>'
+    + '<div class="sval">' + val + '</div>'
+    + '<button class="sbtn" onclick="step(\'' + field + '\',1)">+</button>'
+    + '</div>';
+}
+
+function mkPill(text, cls) { return '<span class="pill ' + cls + '">' + text + '</span>'; }
+
+// ── Render sections ───────────────────────────────────────
+function renderRegisto() {
+  var sat = isSat(fDate);
+  var prev = calc({date:fDate, lessons:fLessons, after:fAfter, sat:fSat});
+  var hasPreview = sat ? fSat > 0 : (fLessons > 0 || fAfter > 0);
+  var canSave = sat ? fSat > 0 : (fLessons > 0 || fAfter > 0);
+  var pct = Math.min(100, Math.round((fLessons / DAILY) * 100));
+  var barColor = fLessons >= DAILY ? '#60d090' : '#f0c060';
+  var hintExtra = '';
+  if (fLessons > DAILY) hintExtra = ' &middot; <span style="color:#60d090">+' + (fLessons-DAILY) + 'h banco</span>';
+  else if (fLessons > 0 && fLessons < DAILY) hintExtra = ' &middot; <span style="color:#e07060">d\u00e9fice ' + (DAILY-fLessons) + 'h</span>';
+
+  var h = '';
+  h += '<div class="stitle">' + (editId ? '&#9998; Editar entrada' : 'Nova entrada') + '</div>';
+
+  h += '<div class="field"><label>Data</label>';
+  h += '<input type="date" class="inp" value="' + fDate + '" onchange="setDate(this.value)"/>';
+  if (sat) h += '<div class="sat-warn">&#9888; S\u00e1bado &mdash; todas as aulas s\u00e3o extras pagas</div>';
+  h += '</div>';
+
+  if (sat) {
+    h += '<div class="field"><label>Aulas dadas hoje (s\u00e1bado)</label>';
+    h += mkStepper('sat', fSat);
+    h += '<div class="hint">' + fSat + ' aula(s) &rarr; ' + fSat + 'h &rarr; ' + (fSat*RATE).toFixed(2) + '&euro;</div></div>';
+  } else {
+    h += '<div class="field"><label>Aulas antes das 19:50</label>';
+    h += mkStepper('lessons', fLessons);
+    h += '<div class="bar"><div class="barfill" style="width:' + pct + '%;background:' + barColor + '"></div></div>';
+    h += '<div class="hint">' + fLessons + '/' + DAILY + ' obrigat\u00f3rias' + hintExtra + '</div></div>';
+
+    h += '<div class="field"><label>Aulas depois das 19:50 (extras pagas)</label>';
+    h += mkStepper('after', fAfter);
+    if (fAfter > 0) h += '<div class="hint" style="color:#e07060">' + fAfter + 'h &rarr; ' + (fAfter*RATE).toFixed(2) + '&euro;</div>';
+    h += '</div>';
+  }
+
+  if (hasPreview) {
+    h += '<div class="card" style="margin-bottom:18px">';
+    h += '<div class="stitle" style="margin-bottom:12px">Pr\u00e9-visualiza\u00e7\u00e3o</div>';
+    h += '<div style="display:flex;gap:20px;flex-wrap:wrap">';
+    h += '<div><div class="slbl">AULAS</div><div class="sbig">' + (sat ? fSat : fLessons+fAfter) + '</div></div>';
+    if (!sat && prev.banco !== 0) {
+      h += '<div><div class="slbl">BANCO</div><div class="sbig" style="color:' + (prev.banco>=0?'#60d090':'#e07060') + '">'
+        + (prev.banco>=0?'+':'') + fmtH(prev.banco) + '</div></div>';
+    }
+    if (prev.extras > 0) {
+      h += '<div><div class="slbl">EXTRAS</div><div class="sbig" style="color:#e07060">' + (prev.extras*RATE).toFixed(2) + '&euro;</div></div>';
+    }
+    h += '</div></div>';
+  }
+
+  h += '<button class="btn" onclick="submit()"' + ((!canSave||syncing) ? ' disabled' : '') + '>';
+  if (syncing) h += '<span class="spin"></span>A sincronizar...';
+  else if (editId) h += 'Guardar + Sincronizar';
+  else h += 'Registar + Guardar no Calend\u00e1rio';
+  h += '</button>';
+
+  if (editId) h += '<button class="btnc" onclick="cancelEdit()">Cancelar</button>';
+
+  h += '<div class="rules"><div class="rtitle">Regras</div>'
+    + '&middot; 1 aula (50 min) = 1 hora de trabalho<br>'
+    + '&middot; 9 aulas/dia = dia completo<br>'
+    + '&middot; Acima de 9 (antes 19:50) &rarr; banco de horas<br>'
+    + '&middot; Depois das 19:50 &rarr; extras pagas (7&euro;/h)<br>'
+    + '&middot; S\u00e1bado &rarr; tudo s\u00e3o extras pagas (7&euro;/h)'
+    + '</div>';
+  return h;
+}
+
+function renderHistorico() {
+  if (entries.length === 0) return '<div style="text-align:center;color:#333;margin-top:60px;font-size:13px">Sem registos ainda.</div>';
+  var sorted = entries.slice().sort(function(a,b) { return b.date.localeCompare(a.date); });
+  var grouped = {};
+  sorted.forEach(function(e) { var m = e.date.substring(0,7); if (!grouped[m]) grouped[m]=[]; grouped[m].push(e); });
+  var h = '';
+  Object.keys(grouped).forEach(function(month) {
+    var mes = grouped[month], pts = month.split('-');
+    h += '<div class="mhdr">' + MONTHS[+pts[1]-1] + ' ' + pts[0] + '</div>';
+    mes.forEach(function(e) {
+      var c = calc(e), sat = isSat(e.date);
+      var total = sat ? (e.sat||0) : ((e.lessons||0)+(e.after||0));
+      h += '<div class="row">';
+      h += '<div style="display:flex;justify-content:space-between;align-items:flex-start">';
+      h += '<div><div class="rtit">' + dayLabel(e.date);
+      if (sat) h += ' <span class="bsat">S\u00c1B</span>';
+      if (e.calId) h += ' <span class="bcal">&#128197;</span>';
+      h += '</div>';
+      h += '<div class="rsub">' + total + ' aula(s)';
+      if (!sat && (e.after||0)>0) h += ' &middot; ' + e.after + ' ap\u00f3s 19:50';
+      h += '</div></div>';
+      h += '<div>'
+        + '<button class="ibtn" onclick="startEdit(' + e.id + ')">&#9998;</button>'
+        + '<button class="ibtn" style="color:#e07060" onclick="deleteEntry(' + e.id + ')">&#10005;</button>'
+        + '</div></div>';
+      h += '<div style="margin-top:10px">';
+      h += mkPill(c.worked + 'h', 'p-n');
+      if (!sat && c.banco > 0) h += mkPill('+' + fmtH(c.banco) + ' banco', 'p-b');
+      if (!sat && c.banco < 0) h += mkPill(fmtH(c.banco) + ' d\u00e9fice', 'p-d');
+      if (c.extras > 0) h += mkPill('+' + fmtH(c.extras) + ' &middot; ' + (c.extras*RATE).toFixed(2) + '&euro;', 'p-e');
+      h += '</div></div>';
+    });
+  });
+  return h;
+}
+
+function renderResumo() {
+  var t = totals(), pay = t.extras * RATE;
+  var sorted = entries.slice().sort(function(a,b) { return b.date.localeCompare(a.date); });
+  var grouped = {};
+  sorted.forEach(function(e) { var m=e.date.substring(0,7); if(!grouped[m])grouped[m]=[]; grouped[m].push(e); });
+  var h = '';
+  h += '<div class="card" style="margin-bottom:14px">';
+  h += '<div class="slbl">Banco de Horas</div>';
+  h += '<div style="font-size:42px;font-family:\'Syne\',sans-serif;font-weight:800;color:' + (t.banco>=0?'#60d090':'#e07060') + ';line-height:1">'
+    + (t.banco>=0?'+':'') + fmtH(t.banco) + '</div>';
+  h += '<div style="font-size:11px;color:#444;margin-top:8px">'
+    + (t.banco>=0 ? 'Saldo positivo: '+fmtH(t.banco) : 'Deves: '+fmtH(Math.abs(t.banco))) + '</div></div>';
+
+  h += '<div class="card" style="margin-bottom:14px">';
+  h += '<div class="slbl">Horas Extras a Receber</div>';
+  h += '<div style="font-size:42px;font-family:\'Syne\',sans-serif;font-weight:800;color:#e07060;line-height:1">' + pay.toFixed(2) + '&euro;</div>';
+  h += '<div style="font-size:11px;color:#444;margin-top:8px">' + fmtH(t.extras) + ' &times; 7&euro;/h</div></div>';
+
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">';
+  h += '<div class="card"><div class="slbl">Dias</div><div style="font-size:30px;font-family:\'Syne\',sans-serif;font-weight:800">' + entries.length + '</div></div>';
+  h += '<div class="card"><div class="slbl">Sincronizados</div><div style="font-size:30px;font-family:\'Syne\',sans-serif;font-weight:800;color:#4090e0">'
+    + entries.filter(function(e){return e.calId;}).length + '</div></div></div>';
+
+  if (Object.keys(grouped).length > 0) {
+    h += '<div class="card" style="margin-bottom:14px"><div class="slbl" style="margin-bottom:14px">Por M\u00eas</div>';
+    Object.keys(grouped).forEach(function(month) {
+      var mes=grouped[month], pts=month.split('-');
+      var mb=mes.reduce(function(s,e){return s+calc(e).banco;},0);
+      var me=mes.reduce(function(s,e){return s+calc(e).extras;},0);
+      var ma=mes.reduce(function(s,e){return s+(isSat(e.date)?e.sat||0:(e.lessons||0)+(e.after||0));},0);
+      h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #1a1a1a">';
+      h += '<div><div style="font-size:12px;color:#888">' + MONTHS[+pts[1]-1] + '</div><div style="font-size:10px;color:#444">' + ma + ' aulas</div></div>';
+      h += '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">';
+      if (mb !== 0) h += '<span style="font-size:12px;color:' + (mb>=0?'#60d090':'#e07060') + '">' + (mb>=0?'+':'') + fmtH(mb) + ' banco</span>';
+      if (me > 0)  h += '<span style="font-size:12px;color:#e07060">' + (me*RATE).toFixed(2) + '&euro; extras</span>';
+      h += '</div></div>';
+    });
+    h += '</div>';
+  }
+  if (entries.length > 0) {
+    h += '<button class="btnd" onclick="if(confirm(\'Apagar todos os registos?\'))clearAll()">Apagar todos os registos</button>';
+  }
+  return h;
+}
+
+// ── Main render ───────────────────────────────────────────
+function render() {
+  var t = totals();
+  var bEl = document.getElementById('hdr-banco');
+  var pEl = document.getElementById('hdr-pay');
+  bEl.textContent = (t.banco>=0?'+':'') + fmtH(t.banco);
+  bEl.style.color  = t.banco >= 0 ? '#60d090' : '#e07060';
+  pEl.textContent  = (t.extras*RATE).toFixed(2) + '\u20ac';
+  var btns = document.querySelectorAll('.tbtn');
+  for (var i=0; i<btns.length; i++) {
+    if (btns[i].dataset.tab === tab) btns[i].classList.add('act');
+    else btns[i].classList.remove('act');
+  }
+  var c = document.getElementById('content');
+  if (tab === 'registo')   c.innerHTML = renderRegisto();
+  else if (tab === 'historico') c.innerHTML = renderHistorico();
+  else c.innerHTML = renderResumo();
+}
+
+render();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js').catch(function(){});
+  });
+}
 </script>
 </body>
 </html>
