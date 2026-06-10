@@ -1,0 +1,16 @@
+{
+  "name": "PONTO — Registo de Aulas",
+  "short_name": "PONTO",
+  "description": "Registo diário de aulas, banco de horas e horas extras",
+  "start_url": "/ponto-aulas/",
+  "scope": "/ponto-aulas/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d0d0d",
+  "theme_color": "#f0c060",
+  "lang": "pt-PT",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
